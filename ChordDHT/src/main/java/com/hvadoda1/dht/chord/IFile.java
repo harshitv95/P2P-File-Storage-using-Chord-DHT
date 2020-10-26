@@ -1,7 +1,9 @@
 package com.hvadoda1.dht.chord;
 
 public interface IFile {
-	IFileMeta getMeta();
-	
+	<M extends IFileMeta> M getMeta();
+
 	String getContent();
+
+	<F extends IFile> F setContent(String content);
 }

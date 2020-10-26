@@ -1,11 +1,12 @@
 package com.hvadoda1.dht.chord;
 
 public class Config {
-	private final static Config instance = new Config();
+	public final static Config instance = new Config();
+	public final static String USR_DIR = System.getProperty("user.dir");
 
 	private ServerIDAlgorithm serverIDAlgorithm = ServerIDAlgorithm.SHA256;
 
-	private Config() {
+	protected Config() {
 	}
 
 	public static Config getInstance() {

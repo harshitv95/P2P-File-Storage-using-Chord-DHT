@@ -1,5 +1,7 @@
 package com.hvadoda1.dht.chord.rpc.thrift.connect;
 
+import java.io.IOException;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -13,22 +15,21 @@ import com.hvadoda1.dht.chord.rpc.thrift.generated.NodeID;
 
 public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client> {
 	
-//	private final static Map<NodeID, FileStore.Client> connections = new HashMap<>();
-//	private final static Map<NodeID, TTransport> transports = new HashMap<>();
-
 	private TTransport transport;
 	private FileStore.Client client;
-	
+
 	private final NodeID node;
-	
+
 	public ThriftConnection(NodeID node) {
 		this.node = node;
 	}
 
 	@Override
-	public Client getConnection(NodeID node) {
+	public Client connect() {
 		if (transport != null && !transport.isOpen())
-			if (client != null) return client;
+			if (client != null)
+				return client;
+
 		try {
 //			TSSLTransportParameters params = new TSSLTransportParameters();
 //			params.setTrustStore("/home/cs557-inst/thrift-0.13.0/lib/java/test/.truststore", "thrift", "SunX509",
@@ -39,14 +40,21 @@ public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client
 				transport.open();
 			TProtocol protocol = new TBinaryProtocol(transport);
 			return new FileStore.Client(protocol);
-
-//			perform(client);
-//
-//			transport.close();
 		} catch (TException x) {
 			x.printStackTrace();
 			return null;
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (transport.isOpen())
+			transport.close();
+	}
+
+	@Override
+	public boolean isOpen() {
+		return transport.isOpen();
 	}
 
 }

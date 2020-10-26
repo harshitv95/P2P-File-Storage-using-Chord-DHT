@@ -12,8 +12,9 @@ public interface IRpcServer<File extends IFile, FileMeta extends IFileMeta, Node
 	 * 
 	 * @param filename Name of the file
 	 * @param contents Contents to be written to the file
+	 * @throws Exc 
 	 */
-	void writeFile(File file);
+	void writeFile(File file) throws Exc;
 
 	/**
 	 * Reads a file from the appropriate node (having the ID as the immediate
@@ -32,5 +33,9 @@ public interface IRpcServer<File extends IFile, FileMeta extends IFileMeta, Node
 	Node findPred(String key) throws Exc;
 
 	Node getNodeSucc() throws Exc;
+	
+	Node getNode();
+	
+	boolean isOwnerOfId(String id);
 
 }

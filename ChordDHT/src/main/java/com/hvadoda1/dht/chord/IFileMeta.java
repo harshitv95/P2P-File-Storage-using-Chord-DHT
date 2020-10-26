@@ -5,6 +5,8 @@ public interface IFileMeta {
 
 	int getVersion();
 
+	<M extends IFileMeta> M setVersion(int version);
+
 //	long length();
 //
 //	Date lastModified();

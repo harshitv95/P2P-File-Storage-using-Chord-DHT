@@ -7,11 +7,11 @@ import java.security.NoSuchAlgorithmException;
 public enum ServerIDAlgorithm {
 	SHA256("SHA-256") {
 		@Override
-		public String generateId(String host, int port) {
+		public String generateId(String key) {
 			MessageDigest msg;
 			try {
 				msg = MessageDigest.getInstance(this.getAlgorithmName());
-				return new String(msg.digest((host + ":" + port).getBytes(StandardCharsets.UTF_8)));
+				return new String(msg.digest((key).getBytes(StandardCharsets.UTF_8)));
 			} catch (NoSuchAlgorithmException e) {
 				e.printStackTrace();
 				return null;
@@ -20,14 +20,14 @@ public enum ServerIDAlgorithm {
 	};
 
 	private final String generatorAlgorithm;
+
 	ServerIDAlgorithm(String generatorAlgorithm) {
 		this.generatorAlgorithm = generatorAlgorithm;
 	}
-	
+
 	String getAlgorithmName() {
 		return this.generatorAlgorithm;
 	}
 
-
-	public abstract String generateId(String host, int port);
+	public abstract String generateId(String key);
 }

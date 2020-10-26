@@ -1,5 +1,10 @@
 package com.hvadoda1.dht.chord.rpc.connect;
 
-public interface IRpcConnection<Node extends IChordNode, Client extends IRpcClient<Node, ? extends Exception>> {
-	Client getConnection(Node node);
+import java.io.Closeable;
+
+public interface IRpcConnection<Node extends IChordNode, Client extends IRpcClient<Node, ? extends Exception>>
+		extends Closeable {
+	Client connect();
+
+	boolean isOpen();
 }
