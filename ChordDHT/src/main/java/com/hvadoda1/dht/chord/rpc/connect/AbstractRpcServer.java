@@ -1,6 +1,8 @@
 package com.hvadoda1.dht.chord.rpc.connect;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +14,7 @@ import com.hvadoda1.dht.chord.util.CommonUtils;
 import com.hvadoda1.dht.chord.util.FileUtils;
 import com.hvadoda1.dht.chord.util.Logger;
 
-public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFileMeta, Node extends IChordNode, Exc extends Exception>
+public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFileMeta, Node extends IChordNode, Client extends IRpcClient<Node, Exc>, Conn extends IRpcConnection<Node, Client>, Exc extends Exception>
 		implements IRpcServer<File, FileMeta, Node, Exc> {
 
 	protected final Node node;
@@ -32,7 +34,19 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 	}
 
 	public AbstractRpcServer(String host, int port) throws Exc {
-		this(null, host, port);
+		this(null, Objects.requireNonNullElseGet(host, () -> {
+			try {
+				return InetAddress.getLocalHost().getHostAddress();
+			} catch (UnknownHostException e) {
+				Logger.error("Failed to get current host's IP Address:\n" + e.getMessage(), e);
+				e.printStackTrace();
+				throw new RuntimeException("Failed to get current host's IP Address", e);
+			}
+		}), port);
+	}
+
+	public AbstractRpcServer(int port) throws Exc {
+		this(null, port);
 	}
 
 	@Override
@@ -89,25 +103,49 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 	public void setFingertable(List<Node> fingerTable) throws Exc {
 		if (fingerTable != null)
 			this.fingerTable = fingerTable;
+		Logger.debugLow("Finger Table", fingerTable);
 	}
 
 	@Override
 	public Node findSucc(String key) throws Exc {
-		// TODO Auto-generated method stub
-		return null;
+		Node pred = findPred(key);
+		try (Conn conn = getConnection(pred);) {
+			Client client = conn.connect();
+			return client.getNodeSucc();
+		} catch (IOException e) {
+			Logger.error(e.getMessage(), e);
+			throw generateException("Failed to find Successor of key [" + key + "]:\n" + e.getMessage());
+		}
+
+//		for (int i = fingerTable.size() - 1; i >= 0; i--)
+//			if (fingerTable.get(i).getId().compareTo(this.node.getId()) < 1)
+//				return fingerTable.get(i);
+//		throw generateException("")
 	}
 
 	@Override
 	public Node findPred(String key) throws Exc {
-		// TODO Auto-generated method stub
-		return null;
+		if (key.compareTo(node.getId()) == 1 && key.compareTo(getNodeSucc().getId()) < 1)
+			return node;
+
+		for (int i = fingerTable.size() - 1; i >= 0; i--)
+			if (fingerTable.get(i).getId().compareTo(key) == -1) {
+				try (Conn conn = getConnection(fingerTable.get(i));) {
+					Client client = conn.connect();
+					return client.findPred(key);
+				} catch (IOException e) {
+					Logger.error(e.getMessage(), e);
+					throw generateException("Failed to find Predecessor of key [" + key + "]:\n" + e.getMessage());
+				}
+			}
+		throw generateException("Unable to find predecessor of key [" + key + "] in current Chord ring");
 	}
 
 	@Override
 	public Node getNodeSucc() throws Exc {
-		if (fingerTable == null)
-			throw generateException(
-					"Cannot get successor of Node [" + CommonUtils.nodeAddress(node) + "], Finger table is not set");
+		if (fingerTable == null || fingerTable.isEmpty())
+			throw generateException("Cannot get successor of Node [" + CommonUtils.nodeAddress(node)
+					+ "], Finger table is not set or no other nodes exist in Chord Network");
 		return fingerTable.get(0);
 	}
 
@@ -120,6 +158,8 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 	public boolean isOwnerOfId(String id) {
 		return (id.compareTo(pred.getId()) > 0 && id.compareTo(node.getId()) < 1);
 	}
+
+	protected abstract Conn getConnection(Node node);
 
 	protected abstract File createFile(FileMeta meta);
 

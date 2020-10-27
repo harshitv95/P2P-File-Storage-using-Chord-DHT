@@ -1,7 +1,5 @@
 package com.hvadoda1.dht.chord.rpc.thrift.connect;
 
-import java.io.IOException;
-
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -47,7 +45,7 @@ public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		if (transport.isOpen())
 			transport.close();
 	}

@@ -1,50 +1,55 @@
 package com.hvadoda1.dht.chord.rpc.thrift.connect;
 
-import java.util.List;
+import org.apache.thrift.TException;
 
-import com.hvadoda1.dht.chord.rpc.connect.IRpcServer;
+import com.hvadoda1.dht.chord.rpc.connect.AbstractRpcServer;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.FileStore;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.NodeID;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.RFile;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.RFileMetadata;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.SystemException;
 
-public class ThriftServer implements IRpcServer<RFile, RFileMetadata, NodeID, SystemException>, FileStore.Iface {
+public class ThriftServer
+		extends AbstractRpcServer<RFile, RFileMetadata, NodeID, FileStore.Client, ThriftConnection, TException> {
 
-	@Override
-	public void writeFile(RFile file) {
-		// TODO Auto-generated method stub
-		
+	public ThriftServer(int port) throws TException {
+		super(port);
+	}
+
+	public ThriftServer(NodeID node) throws TException {
+		super(node);
+	}
+
+	public ThriftServer(String host, int port) throws TException {
+		super(host, port);
+	}
+
+	public ThriftServer(String id, String host, int port) throws TException {
+		super(id, host, port);
 	}
 
 	@Override
-	public RFile readFile(String filename) throws SystemException {
-		// TODO Auto-generated method stub
-		return null;
+	protected ThriftConnection getConnection(NodeID node) {
+		return new ThriftConnection(node);
 	}
 
 	@Override
-	public void setFingertable(List<NodeID> node_list) throws SystemException {
-		// TODO Auto-generated method stub
-		
+	protected RFile createFile(RFileMetadata meta) {
+		RFile file = new RFile();
+		file.setMeta(meta);
+		return file;
 	}
 
 	@Override
-	public NodeID findSucc(String key) throws SystemException {
-		// TODO Auto-generated method stub
-		return null;
+	protected NodeID createNode(String id, String host, int port) {
+		return new NodeID(id, host, port);
 	}
 
 	@Override
-	public NodeID findPred(String key) throws SystemException {
-		// TODO Auto-generated method stub
-		return null;
+	protected TException generateException(String message) {
+		SystemException sysExc = new SystemException();
+		sysExc.setMessage(message);
+		return sysExc;
 	}
 
-	@Override
-	public NodeID getNodeSucc() throws SystemException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 }
