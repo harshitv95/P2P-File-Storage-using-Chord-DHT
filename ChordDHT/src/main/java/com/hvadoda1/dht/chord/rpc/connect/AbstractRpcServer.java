@@ -26,11 +26,13 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 	public AbstractRpcServer(Node node) throws Exc {
 		this.node = node;
 		this.pred = findPred(node.getId());
+		initialize();
 	}
 
 	public AbstractRpcServer(String id, String host, int port) throws Exc {
 		this.node = createNode(Objects.requireNonNullElseGet(id, () -> CommonUtils.serverID(host, port)), host, port);
 		this.pred = findPred(node.getId());
+		initialize();
 	}
 
 	public AbstractRpcServer(String host, int port) throws Exc {
@@ -43,10 +45,12 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 				throw new RuntimeException("Failed to get current host's IP Address", e);
 			}
 		}), port);
+		initialize();
 	}
 
 	public AbstractRpcServer(int port) throws Exc {
 		this(null, port);
+		initialize();
 	}
 
 	@Override
@@ -158,6 +162,8 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 	public boolean isOwnerOfId(String id) {
 		return (id.compareTo(pred.getId()) > 0 && id.compareTo(node.getId()) < 1);
 	}
+
+	protected abstract void initialize();
 
 	protected abstract Conn getConnection(Node node);
 

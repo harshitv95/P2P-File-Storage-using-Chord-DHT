@@ -5,6 +5,7 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSSLTransportFactory;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
 
 import com.hvadoda1.dht.chord.rpc.connect.IRpcConnection;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.FileStore;
@@ -12,7 +13,7 @@ import com.hvadoda1.dht.chord.rpc.thrift.generated.FileStore.Client;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.NodeID;
 
 public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client> {
-	
+
 	private TTransport transport;
 	private FileStore.Client client;
 
@@ -29,15 +30,7 @@ public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client
 				return client;
 
 		try {
-//			TSSLTransportParameters params = new TSSLTransportParameters();
-//			params.setTrustStore("/home/cs557-inst/thrift-0.13.0/lib/java/test/.truststore", "thrift", "SunX509",
-//					"JKS");
-
-			TTransport transport = TSSLTransportFactory.getClientSocket(node.getIp(), node.getPort(), 0);
-			if (!transport.isOpen())
-				transport.open();
-			TProtocol protocol = new TBinaryProtocol(transport);
-			return new FileStore.Client(protocol);
+			return client = new FileStore.Client(setupTransport());
 		} catch (TException x) {
 			x.printStackTrace();
 			return null;
@@ -53,6 +46,17 @@ public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client
 	@Override
 	public boolean isOpen() {
 		return transport.isOpen();
+	}
+
+	protected TProtocol setupTransport() throws TTransportException {
+//		TSSLTransportParameters params = new TSSLTransportParameters();
+//		params.setTrustStore("/home/cs557-inst/thrift-0.13.0/lib/java/test/.truststore", "thrift", "SunX509",
+//				"JKS");
+
+		transport = TSSLTransportFactory.getClientSocket(node.getIp(), node.getPort(), 0);
+		if (!transport.isOpen())
+			transport.open();
+		return new TBinaryProtocol(transport);
 	}
 
 }

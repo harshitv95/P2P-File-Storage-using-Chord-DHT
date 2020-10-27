@@ -10,7 +10,8 @@ import com.hvadoda1.dht.chord.rpc.thrift.generated.RFileMetadata;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.SystemException;
 
 public class ThriftServer
-		extends AbstractRpcServer<RFile, RFileMetadata, NodeID, FileStore.Client, ThriftConnection, TException> {
+		extends AbstractRpcServer<RFile, RFileMetadata, NodeID, FileStore.Client, ThriftConnection, TException>
+		implements FileStore.Iface {
 
 	public ThriftServer(int port) throws TException {
 		super(port);
@@ -50,6 +51,10 @@ public class ThriftServer
 		SystemException sysExc = new SystemException();
 		sysExc.setMessage(message);
 		return sysExc;
+	}
+
+	@Override
+	protected void initialize() {
 	}
 
 }
