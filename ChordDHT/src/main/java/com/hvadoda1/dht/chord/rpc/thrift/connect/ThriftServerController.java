@@ -4,9 +4,11 @@ import org.apache.thrift.TException;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TSSLTransportFactory;
+import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
 import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.transport.TTransportException;
 
+import com.hvadoda1.dht.chord.Config;
 import com.hvadoda1.dht.chord.rpc.connect.IRpcServerController;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.FileStore;
 import com.hvadoda1.dht.chord.util.Logger;
@@ -17,17 +19,19 @@ public class ThriftServerController implements IRpcServerController<ThriftServer
 	protected final FileStore.Processor<ThriftServer> processor;
 
 	public ThriftServerController(int port) throws TException {
+		Logger.debugLow("Initializing Thrift Chord Server Controller");
 		this.port = port;
 		this.processor = new FileStore.Processor<>(createServerHandler());
 	}
 
 	@Override
 	public void run() {
+		Logger.debugLow("Running Thrift Chord Server Controller");
 		try {
 			TServer server = setupServer();
 			server.serve();
 		} catch (TTransportException e) {
-			Logger.error("Could noyt start RPC Server", e);
+			Logger.error("Could not start RPC Server", e);
 			e.printStackTrace();
 		}
 	}
@@ -42,7 +46,14 @@ public class ThriftServerController implements IRpcServerController<ThriftServer
 	}
 
 	protected TServerTransport getTransport() throws TTransportException {
-		return TSSLTransportFactory.getServerSocket(port, 0);
+		TSSLTransportParameters params = new TSSLTransportParameters();
+		params.setKeyStore(
+					Config.getProperty("KEYSTORE_PATH"),
+					Config.getProperty("KEYSTORE_PASSWORD"),
+					Config.getPropertyOrDefault("KEYSTORE_MANAGER", null),
+					Config.getPropertyOrDefault("KEYSTORE_TYPE", null)
+				);
+		return TSSLTransportFactory.getServerSocket(port, 0, null, params);
 	}
 
 }

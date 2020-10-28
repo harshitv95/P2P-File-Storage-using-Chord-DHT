@@ -8,6 +8,7 @@ import com.hvadoda1.dht.chord.rpc.thrift.generated.NodeID;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.RFile;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.RFileMetadata;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.SystemException;
+import com.hvadoda1.dht.chord.util.Logger;
 
 public class ThriftServer
 		extends AbstractRpcServer<RFile, RFileMetadata, NodeID, FileStore.Client, ThriftConnection, TException>
@@ -15,18 +16,22 @@ public class ThriftServer
 
 	public ThriftServer(int port) throws TException {
 		super(port);
+		Logger.debugHigh("Initializing Thrift server handler");
 	}
 
 	public ThriftServer(NodeID node) throws TException {
 		super(node);
+		Logger.debugHigh("Initializing Thrift server handler");
 	}
 
 	public ThriftServer(String host, int port) throws TException {
 		super(host, port);
+		Logger.debugHigh("Initializing Thrift server handler");
 	}
 
 	public ThriftServer(String id, String host, int port) throws TException {
 		super(id, host, port);
+		Logger.debugHigh("Initializing Thrift server handler");
 	}
 
 	@Override

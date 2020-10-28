@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.apache.thrift.TException;
 
@@ -41,10 +42,14 @@ public abstract class ChordServiceStarter<Controller extends IRpcServerControlle
 		Level logLevel = Level.from(Integer.parseInt(argMap.getOrDefault("level", "3")));
 		String logFilename = "logs" + File.separator + "log_" + (DateTimeUtils.getLogFileNameDateString()) + ".txt";
 
-		try (Logger log = new Logger(logLevel, logFilename, InetAddress.getLocalHost().getHostAddress(), false)) {
-
+		try {
+			Logger log = new Logger(logLevel, logFilename, InetAddress.getLocalHost().getHostAddress(), false);
+			Logger.debugHigh("Command Line Args", argMap);
 			try {
-				new ThriftChordServiceStarter(argMap).start();
+				new ThriftChordServiceStarter(argMap).start(() -> { // Equivalent to finally, but for threads
+					log.close();
+					return log;
+				});
 			} catch (TException e) {
 				e.printStackTrace();
 				Logger.error("Exception while executing Chord server", e);
@@ -61,7 +66,7 @@ public abstract class ChordServiceStarter<Controller extends IRpcServerControlle
 	protected final Controller controller;
 
 	public ChordServiceStarter(Map<String, String> argsMap) throws Exc {
-		initConfig();
+		initConfig(argsMap);
 		controller = initController(Integer.parseInt(argsMap.get("port")));
 	}
 
@@ -69,10 +74,21 @@ public abstract class ChordServiceStarter<Controller extends IRpcServerControlle
 		new Thread(controller).start();
 	}
 
+	public <T> T start(Supplier<T> serviceThreadEndCallback) {
+		Thread t = new Thread(controller);
+		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return serviceThreadEndCallback.get();
+	}
+
 	protected abstract Controller initController(int port) throws Exc;
 
-	protected Config initConfig() {
-		return new Config();
+	protected Config initConfig(Map<String, String> argsMap) {
+		return new Config(argsMap);
 	}
 
 }
@@ -89,8 +105,8 @@ class ThriftChordServiceStarter extends ChordServiceStarter<ThriftServerControll
 	}
 
 	@Override
-	protected Config initConfig() {
-		return new ThriftConfig();
+	protected Config initConfig(Map<String, String> argsMap) {
+		return new ThriftConfig(argsMap);
 	}
 
 }

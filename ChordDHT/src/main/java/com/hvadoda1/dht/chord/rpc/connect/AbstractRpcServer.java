@@ -107,15 +107,17 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 	@Override
 	public void setFingertable(List<Node> fingerTable) throws Exc {
 		if (fingerTable != null) {
+			Logger.debugLow("New Finger Table", fingerTable);
 			this.fingerTable = fingerTable;
 			this.pred = findPred(node.getId());
 		}
-		Logger.debugLow("Finger Table", fingerTable);
 	}
 
 	@Override
 	public Node findSucc(String key) throws Exc {
+		Logger.debugLow("Finding Succesor of key [" + key + "]");
 		Node pred = findPred(key);
+		Logger.debugHigh("Predecessor of key [" + key + "] = [" + CommonUtils.nodeAddress(pred) + "]");
 		try (Conn conn = getConnection(pred);) {
 			Client client = conn.connect();
 			return client.getNodeSucc();
@@ -132,8 +134,11 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 
 	@Override
 	public Node findPred(String key) throws Exc {
-		if (key.compareTo(node.getId()) == 1 && key.compareTo(getNodeSucc().getId()) < 1)
+		Logger.debugLow("Finding Predecessor of key [" + key + "]");
+		if (key.compareTo(node.getId()) == 1 && key.compareTo(getNodeSucc().getId()) < 1) {
+			Logger.debugLow("Found Predecessor of key [" + key + "] = [" + CommonUtils.nodeAddress(node) + "]");
 			return node;
+		}
 		if (fingerTable == null || fingerTable.isEmpty())
 			throw generateException(
 					"Finger table is not set, cannot Find Predecessor of Node [" + CommonUtils.nodeAddress(node) + "]");

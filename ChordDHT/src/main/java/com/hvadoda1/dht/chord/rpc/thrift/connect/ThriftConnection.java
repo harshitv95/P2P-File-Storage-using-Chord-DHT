@@ -1,9 +1,12 @@
 package com.hvadoda1.dht.chord.rpc.thrift.connect;
 
+import static com.hvadoda1.dht.chord.util.CommonUtils.nodeAddress;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSSLTransportFactory;
+import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
@@ -11,6 +14,7 @@ import com.hvadoda1.dht.chord.rpc.connect.IRpcConnection;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.FileStore;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.FileStore.Client;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.NodeID;
+import com.hvadoda1.dht.chord.util.Logger;
 
 public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client> {
 
@@ -20,11 +24,13 @@ public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client
 	private final NodeID node;
 
 	public ThriftConnection(NodeID node) {
+		Logger.debugHigh("Initializing connection to server: [" + nodeAddress(node) + "]");
 		this.node = node;
 	}
 
 	@Override
 	public Client connect() {
+		Logger.debugLow("Attempting to connect to server node [" + nodeAddress(node) + "]");
 		if (transport != null && !transport.isOpen())
 			if (client != null)
 				return client;
@@ -49,10 +55,14 @@ public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client
 	}
 
 	protected TProtocol setupTransport() throws TTransportException {
-//		TSSLTransportParameters params = new TSSLTransportParameters();
-//		params.setTrustStore("/home/cs557-inst/thrift-0.13.0/lib/java/test/.truststore", "thrift", "SunX509",
-//				"JKS");
-
+		TSSLTransportParameters params = new TSSLTransportParameters();
+		params.setTrustStore(
+				ThriftConfig.getTrustStorePath(),
+				ThriftConfig.getTrustStorePassword(),
+				ThriftConfig.getTrustStoreManager(),
+				ThriftConfig.getTrustStoreType()
+			);
+		Logger.debugHigh("Initializing transport");
 		transport = TSSLTransportFactory.getClientSocket(node.getIp(), node.getPort(), 0);
 		if (!transport.isOpen())
 			transport.open();

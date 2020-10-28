@@ -3,6 +3,7 @@ LIB_PATH=${2:-/home/cs557-inst/local/lib/libthrift-0.13.0.jar:/home/cs557-inst/l
 echo Using LIB_PATH: $LIB_PATH
 
 find -name "*.java" > sources.txt
+find -wholename "*/resources/*" >> sources.txt
 javac -classpath $LIB_PATH -d ./bin/ @sources.txt
 
 PACKAGE_ROOT=$(echo "$dirs")
@@ -20,6 +21,4 @@ rm -f Manifest.mf
 rm -f sources.txt
 rm -rf bin
 
-KEY_STORE=/home/cs557-inst/thrift-0.13.0/lib/java/test/.truststore
-
-java -jar server.jar port=$1 keystore=$KEY_STORE ${@:3}
+java -jar server.jar port=$1 ${@:3}
