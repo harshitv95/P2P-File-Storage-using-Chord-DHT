@@ -3,7 +3,6 @@ LIB_PATH=${2:-/home/cs557-inst/local/lib/libthrift-0.13.0.jar:/home/cs557-inst/l
 echo Using LIB_PATH: $LIB_PATH
 
 find -name "*.java" > sources.txt
-find -wholename "*/resources/*" >> sources.txt
 javac -classpath $LIB_PATH -d ./bin/ @sources.txt
 
 PACKAGE_ROOT=$(echo "$dirs")
@@ -13,8 +12,11 @@ echo "Manifest-Version: 1.0" > Manifest.mf
 echo "Main-Class: com.hvadoda1.dht.chord.starter.ChordServiceStarter" >> Manifest.mf
 echo "Class-Path: $(echo $LIB_PATH | tr : ' ') " >> Manifest.mf
 
+RES_DIR=$(find -name "resources")
+cp $RES_DIR/* ./bin
+
 cd bin/
-jar cmf ../Manifest.mf ../server.jar com/
+jar cmf ../Manifest.mf ../server.jar com/ *.properties
 
 cd ..
 rm -f Manifest.mf
