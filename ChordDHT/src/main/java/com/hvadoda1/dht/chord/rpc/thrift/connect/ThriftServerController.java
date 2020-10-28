@@ -48,10 +48,10 @@ public class ThriftServerController implements IRpcServerController<ThriftServer
 	protected TServerTransport getTransport() throws TTransportException {
 		TSSLTransportParameters params = new TSSLTransportParameters();
 		params.setKeyStore(
-					Config.getProperty("KEYSTORE_PATH"),
-					Config.getProperty("KEYSTORE_PASSWORD"),
-					Config.getPropertyOrDefault("KEYSTORE_MANAGER", null),
-					Config.getPropertyOrDefault("KEYSTORE_TYPE", null)
+					ThriftConfig.getKeyStorePath(),
+					ThriftConfig.getKeyStorePassword(),
+					ThriftConfig.getKeyStoreManager(),
+					ThriftConfig.getKeyStoreType()
 				);
 		return TSSLTransportFactory.getServerSocket(port, 0, null, params);
 	}
