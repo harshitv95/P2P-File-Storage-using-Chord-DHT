@@ -1,1 +1,0 @@
-[Tue Oct 27 21:23:57 EDT 2020][INFO][192.168.1.52][com.hvadoda1.dht.chord.rpc.connect.AbstractRpcServer.<init>:36] Thrift server running on: [192.168.1.52:9000]
