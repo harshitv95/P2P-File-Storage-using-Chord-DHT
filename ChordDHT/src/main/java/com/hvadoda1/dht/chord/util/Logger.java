@@ -1,5 +1,6 @@
 package com.hvadoda1.dht.chord.util;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -46,7 +47,7 @@ public class Logger implements AutoCloseable {
 	 * </ul>
 	 * 
 	 * @param level             Level to log at (Refer {@link Level})
-	 * @param logFile           Name of log file
+	 * @param logFilePath       Name of log file
 	 * @param logtoFileForLevel If this is not empty, only the logs printed at any
 	 *                          of these levels will be printed to the log file,
 	 *                          else all the logs (with levels equal to or less than
@@ -55,12 +56,16 @@ public class Logger implements AutoCloseable {
 	 *                          parameter, all the logs are printed to the console.
 	 * @throws IOException
 	 */
-	public Logger(Level level, String logFile, String hostAddress, boolean detailsOnConsole, Level... logtoFileForLevel)
-			throws IOException {
+	public Logger(Level level, String logFilePath, String hostAddress, boolean detailsOnConsole,
+			Level... logtoFileForLevel) throws IOException {
 		if (instance != null)
 			throw new RuntimeException("Logger already initialized, cannot initialize it again");
 		this.level = level != null ? level : Level.INFO;
-		this.fw = new FileWriter(logFile);
+
+		File logFile = new File(logFilePath);
+		logFile.getParentFile().mkdirs();
+		this.fw = new FileWriter(logFilePath);
+
 		this.detailsOnConsole = detailsOnConsole;
 		this.logtoFileForLevel = new HashSet<>(Arrays.asList(
 				(logtoFileForLevel == null || logtoFileForLevel.length == 0) ? Level.values() : logtoFileForLevel));

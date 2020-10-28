@@ -1,12 +1,15 @@
 package com.hvadoda1.dht.chord;
 
 public class Config {
-	public final static Config instance = new Config();
+	public static Config instance;
 	public final static String USR_DIR = System.getProperty("user.dir");
 
 	private ServerIDAlgorithm serverIDAlgorithm = ServerIDAlgorithm.SHA256;
 
-	protected Config() {
+	public Config() {
+		if (instance != null)
+			throw new RuntimeException("Config can only be initialized once");
+		instance = this;
 	}
 
 	public static Config getInstance() {
