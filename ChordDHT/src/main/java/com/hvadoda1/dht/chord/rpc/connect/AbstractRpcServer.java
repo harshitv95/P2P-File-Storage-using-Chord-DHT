@@ -31,8 +31,9 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 
 	public AbstractRpcServer(String id, String host, int port) throws Exc {
 		this.node = createNode(Objects.requireNonNullElseGet(id, () -> CommonUtils.serverID(host, port)), host, port);
-		this.pred = findPred(node.getId());
+//		this.pred = findPred(node.getId());
 		initialize();
+		Logger.info("Thrift server running on: [" + CommonUtils.nodeAddress(node) + "]");
 	}
 
 	public AbstractRpcServer(String host, int port) throws Exc {
@@ -105,8 +106,10 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 
 	@Override
 	public void setFingertable(List<Node> fingerTable) throws Exc {
-		if (fingerTable != null)
+		if (fingerTable != null) {
 			this.fingerTable = fingerTable;
+			this.pred = findPred(node.getId());
+		}
 		Logger.debugLow("Finger Table", fingerTable);
 	}
 
@@ -131,7 +134,9 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 	public Node findPred(String key) throws Exc {
 		if (key.compareTo(node.getId()) == 1 && key.compareTo(getNodeSucc().getId()) < 1)
 			return node;
-
+		if (fingerTable == null || fingerTable.isEmpty())
+			throw generateException(
+					"Finger table is not set, cannot Find Predecessor of Node [" + CommonUtils.nodeAddress(node) + "]");
 		for (int i = fingerTable.size() - 1; i >= 0; i--)
 			if (fingerTable.get(i).getId().compareTo(key) == -1) {
 				try (Conn conn = getConnection(fingerTable.get(i));) {

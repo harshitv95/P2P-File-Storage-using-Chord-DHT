@@ -42,13 +42,17 @@ public abstract class ChordServiceStarter<Controller extends IRpcServerControlle
 		String logFilename = "logs" + File.separator + "log_" + (DateTimeUtils.getLogFileNameDateString()) + ".txt";
 
 		try (Logger log = new Logger(logLevel, logFilename, InetAddress.getLocalHost().getHostAddress(), false)) {
-			new ThriftChordServiceStarter(argMap).start();
+
+			try {
+				new ThriftChordServiceStarter(argMap).start();
+			} catch (TException e) {
+				e.printStackTrace();
+				Logger.error("Exception while executing Chord server", e);
+			}
+
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (TException e) {
-			Logger.error("Exception while executing Chord server", e);
 			e.printStackTrace();
 		}
 

@@ -63,7 +63,8 @@ public class Logger implements AutoCloseable {
 		this.level = level != null ? level : Level.INFO;
 
 		File logFile = new File(logFilePath);
-		logFile.getParentFile().mkdirs();
+		if (!logFile.getParentFile().exists())
+			logFile.getParentFile().mkdirs();
 		this.fw = new FileWriter(logFilePath);
 
 		this.detailsOnConsole = detailsOnConsole;
