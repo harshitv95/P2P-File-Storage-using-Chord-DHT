@@ -19,11 +19,13 @@ public class ThriftConfig extends Config {
 	}
 
 	public static String getKeyStoreManager() {
-		return getProperty("KEYSTORE_MANAGER");
+		String s = getProperty("KEYSTORE_MANAGER");
+		return s == null || s.trim().isEmpty() ? null : s;
 	}
 
 	public static String getKeyStoreType() {
-		return getProperty("KEYSTORE_TYPE");
+		String s = getProperty("KEYSTORE_TYPE");
+		return s == null || s.trim().isEmpty() ? null : s;
 	}
 
 	public static String getTrustStorePath() {
@@ -35,11 +37,13 @@ public class ThriftConfig extends Config {
 	}
 
 	public static String getTrustStoreManager() {
-		return getProperty("TRUSTSTORE_MANAGER");
+		String s = getProperty("TRUSTSTORE_MANAGER");
+		return s == null || s.trim().isEmpty() ? null : s;
 	}
 
 	public static String getTrustStoreType() {
-		return getProperty("TRUSTSTORE_TYPE");
+		String s = getProperty("TRUSTSTORE_TYPE");
+		return s == null || s.trim().isEmpty() ? null : s;
 	}
 
 }
