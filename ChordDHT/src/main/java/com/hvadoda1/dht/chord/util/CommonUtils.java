@@ -23,7 +23,8 @@ public class CommonUtils {
 					sb.deleteCharAt(sb.length() - 1);
 				val = sb.toString();
 			} else
-				val = argSplit[0];
+				continue;
+//				val = argSplit[0];
 			key = argSplit[0];
 
 			map.put(key, val);
