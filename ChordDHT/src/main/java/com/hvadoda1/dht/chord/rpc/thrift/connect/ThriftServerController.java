@@ -8,7 +8,6 @@ import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
 import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.transport.TTransportException;
 
-import com.hvadoda1.dht.chord.Config;
 import com.hvadoda1.dht.chord.rpc.connect.IRpcServerController;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.FileStore;
 import com.hvadoda1.dht.chord.util.Logger;
