@@ -519,7 +519,9 @@ public class FileStore {
 
       public setFingertable_result getResult(I iface, setFingertable_args args) throws org.apache.thrift.TException {
         setFingertable_result result = new setFingertable_result();
+        _LOGGER.info("Now calling setFingerTable with Nodes: ", args.node_list);
         iface.setFingertable(args.node_list);
+        _LOGGER.info("setFingerTable Called with Nodes: ", args.node_list);
         return result;
       }
     }
