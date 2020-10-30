@@ -20,7 +20,7 @@ public class ThriftServerController implements IRpcServerController<ThriftServer
 	public ThriftServerController(int port) throws TException {
 		Logger.debugLow("Initializing Thrift Chord Server Controller");
 		this.port = port;
-		this.processor = new FileStore.Processor<>(createServerHandler());
+		this.processor = new FileStore.Processor<ThriftServer>(createServerHandler());
 	}
 
 	@Override

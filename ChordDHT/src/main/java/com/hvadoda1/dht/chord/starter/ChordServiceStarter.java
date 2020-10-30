@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import org.apache.thrift.TException;
-import org.slf4j.impl.StaticLoggerBinder;
 
 import com.hvadoda1.dht.chord.Config;
 import com.hvadoda1.dht.chord.rpc.connect.IRpcServer;
@@ -47,7 +46,6 @@ public abstract class ChordServiceStarter<Controller extends IRpcServerControlle
 			Logger log = new Logger(logLevel, logFilename, InetAddress.getLocalHost().getHostAddress(), false);
 			Logger.debugHigh("Command Line Args", argMap);
 			try {
-				org.slf4j.LoggerFactory.getLogger(StaticLoggerBinder.class);
 				new ThriftChordServiceStarter(argMap).start(() -> {
 					// Equivalent to finally, but for threads
 					log.close();
