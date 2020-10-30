@@ -3,8 +3,7 @@ package com.hvadoda1.dht.chord.rpc.thrift.connect;
 import org.apache.thrift.TException;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TSimpleServer;
-import org.apache.thrift.transport.TSSLTransportFactory;
-import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
+import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.transport.TTransportException;
 
@@ -45,14 +44,15 @@ public class ThriftServerController implements IRpcServerController<ThriftServer
 	}
 
 	protected TServerTransport getTransport() throws TTransportException {
-		TSSLTransportParameters params = new TSSLTransportParameters();
-		params.setKeyStore(
-					ThriftConfig.getKeyStorePath(),
-					ThriftConfig.getKeyStorePassword(),
-					ThriftConfig.getKeyStoreManager(),
-					ThriftConfig.getKeyStoreType()
-				);
-		return TSSLTransportFactory.getServerSocket(port, 0, null, params);
+//		TSSLTransportParameters params = new TSSLTransportParameters();
+//		params.setKeyStore(
+//					ThriftConfig.getKeyStorePath(),
+//					ThriftConfig.getKeyStorePassword(),
+//					ThriftConfig.getKeyStoreManager(),
+//					ThriftConfig.getKeyStoreType()
+//				);
+//		return TSSLTransportFactory.getServerSocket(port, 0, null, params);
+		return new TServerSocket(port);
 	}
 
 }

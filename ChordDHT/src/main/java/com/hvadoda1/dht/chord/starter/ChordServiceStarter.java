@@ -9,14 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.apache.thrift.TException;
-
 import com.hvadoda1.dht.chord.Config;
 import com.hvadoda1.dht.chord.rpc.connect.IRpcServer;
 import com.hvadoda1.dht.chord.rpc.connect.IRpcServerController;
-import com.hvadoda1.dht.chord.rpc.thrift.connect.ThriftConfig;
-import com.hvadoda1.dht.chord.rpc.thrift.connect.ThriftServer;
-import com.hvadoda1.dht.chord.rpc.thrift.connect.ThriftServerController;
 import com.hvadoda1.dht.chord.util.CommonUtils;
 import com.hvadoda1.dht.chord.util.DateTimeUtils;
 import com.hvadoda1.dht.chord.util.Logger;
@@ -45,17 +40,11 @@ public abstract class ChordServiceStarter<Controller extends IRpcServerControlle
 		try {
 			Logger log = new Logger(logLevel, logFilename, InetAddress.getLocalHost().getHostAddress(), false);
 			Logger.debugHigh("Command Line Args", argMap);
-			try {
-				new ThriftChordServiceStarter(argMap).start(() -> {
-					// Equivalent to finally, but for threads
-					log.close();
-					return log;
-				});
-			} catch (TException e) {
-				e.printStackTrace();
-				Logger.error("Exception while executing Chord server", e);
-			}
-
+			ChordStarterFactory.factory(ChordImpl.Thrift, argMap).start(() -> {
+				// Equivalent to finally, but for threads
+				log.close();
+				return log;
+			});
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -90,24 +79,6 @@ public abstract class ChordServiceStarter<Controller extends IRpcServerControlle
 
 	protected Config initConfig(Map<String, String> argsMap) {
 		return new Config(argsMap);
-	}
-
-}
-
-class ThriftChordServiceStarter extends ChordServiceStarter<ThriftServerController, ThriftServer, TException> {
-
-	public ThriftChordServiceStarter(Map<String, String> argsMap) throws TException {
-		super(argsMap);
-	}
-
-	@Override
-	protected ThriftServerController initController(int port) throws TException {
-		return new ThriftServerController(port);
-	}
-
-	@Override
-	protected Config initConfig(Map<String, String> argsMap) {
-		return new ThriftConfig(argsMap);
 	}
 
 }

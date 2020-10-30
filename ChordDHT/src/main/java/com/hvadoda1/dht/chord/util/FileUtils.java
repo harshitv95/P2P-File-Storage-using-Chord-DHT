@@ -33,4 +33,27 @@ public class FileUtils {
 			}
 		}
 	}
+
+	/**
+	 * <li>If param {@code deleteFolder} is {@code true} : Deletes only the contents
+	 * of the folder represented by the parameter {@code file}, but does not delete
+	 * the folder.</li>
+	 * <li>Else: Deletes the whole folder represented by the parameter
+	 * {@code file}</li>
+	 * 
+	 * @param folder
+	 */
+	public static void deleteDirectory(File folder, boolean deleteFolder) {
+		File[] files = folder.listFiles();
+		if (files != null) {
+			for (File f : files) {
+				if (f.isDirectory())
+					deleteDirectory(f, true);
+				else
+					f.delete();
+			}
+		}
+		if (deleteFolder)
+			folder.delete();
+	}
 }

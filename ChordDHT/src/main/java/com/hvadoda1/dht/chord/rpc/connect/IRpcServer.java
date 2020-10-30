@@ -36,6 +36,6 @@ public interface IRpcServer<File extends IFile, FileMeta extends IFileMeta, Node
 	
 	Node getNode();
 	
-	boolean isOwnerOfId(String id);
+	boolean isOwnerOfId(String id) throws Exc;
 
 }

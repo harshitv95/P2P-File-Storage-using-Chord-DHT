@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.hvadoda1.dht.chord.Config;
 import com.hvadoda1.dht.chord.IFile;
 import com.hvadoda1.dht.chord.IFileMeta;
 import com.hvadoda1.dht.chord.util.CommonUtils;
@@ -20,18 +21,20 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 	protected final Node node;
 	protected Node pred;
 	protected List<Node> fingerTable;
+	protected final java.io.File uploadsDir;
 
 	protected final Map<String, FileMeta> idKeyMap = new HashMap<>();
 
 	public AbstractRpcServer(Node node) throws Exc {
 		this.node = node;
-		this.pred = findPred(node.getId());
+		this.uploadsDir = new java.io.File(Config.hostUploadsDir(node.getPort()));
 		initialize();
+		Logger.info("Thrift server running on: [" + CommonUtils.nodeAddress(node) + "]");
 	}
 
 	public AbstractRpcServer(String id, String host, int port) throws Exc {
 		this.node = createNode(Objects.requireNonNullElseGet(id, () -> CommonUtils.serverID(host, port)), host, port);
-//		this.pred = findPred(node.getId());
+		this.uploadsDir = new java.io.File(Config.hostUploadsDir(node.getPort()));
 		initialize();
 		Logger.info("Thrift server running on: [" + CommonUtils.nodeAddress(node) + "]");
 	}
@@ -68,7 +71,7 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 			Logger.debugLow("Mapping ID [" + fileId + "] to file [" + file.getMeta().getFilename() + "]");
 			idKeyMap.put(fileId, file.getMeta());
 		}
-		java.io.File f = new java.io.File(file.getMeta().getFilename());
+		java.io.File f = new java.io.File(uploadsDir, file.getMeta().getFilename());
 		if (file.getMeta().getFilename().contains(java.io.File.separator))
 			f.getParentFile().mkdirs();
 		try {
@@ -109,7 +112,6 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 		if (fingerTable != null) {
 			Logger.debugLow("New Finger Table", fingerTable);
 			this.fingerTable = fingerTable;
-			this.pred = findPred(node.getId());
 		}
 	}
 
@@ -135,24 +137,29 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 	@Override
 	public Node findPred(String key) throws Exc {
 		Logger.debugLow("Finding Predecessor of key [" + key + "]");
-		if (key.compareTo(node.getId()) == 1 && key.compareTo(getNodeSucc().getId()) < 1) {
+		if (key.compareTo(node.getId()) > 0 && key.compareTo(getNodeSucc().getId()) < 1) {
 			Logger.debugLow("Found Predecessor of key [" + key + "] = [" + CommonUtils.nodeAddress(node) + "]");
 			return node;
 		}
 		if (fingerTable == null || fingerTable.isEmpty())
 			throw generateException(
 					"Finger table is not set, cannot Find Predecessor of Node [" + CommonUtils.nodeAddress(node) + "]");
+		Node target = null;
 		for (int i = fingerTable.size() - 1; i >= 0; i--)
-			if (fingerTable.get(i).getId().compareTo(key) == -1) {
-				try (Conn conn = getConnection(fingerTable.get(i));) {
-					Client client = conn.connect();
-					return client.findPred(key);
-				} catch (IOException e) {
-					Logger.error(e.getMessage(), e);
-					throw generateException("Failed to find Predecessor of key [" + key + "]:\n" + e.getMessage());
-				}
-			}
-		throw generateException("Unable to find predecessor of key [" + key + "] in current Chord ring");
+			if ((target = fingerTable.get(i)).getId().compareTo(key) == -1)
+				break;
+
+		if (target == null)
+			target = fingerTable.get(fingerTable.size() - 1);
+		try (Conn conn = getConnection(target);) {
+			Client client = conn.connect();
+			return client.findPred(key);
+		} catch (IOException e) {
+			Logger.error(e.getMessage(), e);
+			throw generateException("Failed to find Predecessor of key [" + key + "]:\n" + e.getMessage());
+		}
+
+//		throw generateException("Unable to find predecessor of key [" + key + "] in current Chord ring");
 	}
 
 	@Override
@@ -169,11 +176,17 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 	}
 
 	@Override
-	public boolean isOwnerOfId(String id) {
+	public boolean isOwnerOfId(String id) throws Exc {
+		if (pred == null)
+			pred = findPred(node.getId());
 		return (id.compareTo(pred.getId()) > 0 && id.compareTo(node.getId()) < 1);
 	}
 
-	protected abstract void initialize();
+	protected void initialize() {
+		if (!uploadsDir.exists() || !uploadsDir.isDirectory())
+			uploadsDir.mkdirs();
+		FileUtils.deleteDirectory(uploadsDir, false);
+	}
 
 	protected abstract Conn getConnection(Node node);
 

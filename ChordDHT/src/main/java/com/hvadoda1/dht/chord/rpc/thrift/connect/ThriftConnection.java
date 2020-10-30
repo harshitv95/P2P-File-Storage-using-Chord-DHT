@@ -5,8 +5,7 @@ import static com.hvadoda1.dht.chord.util.CommonUtils.nodeAddress;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TSSLTransportFactory;
-import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
+import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
@@ -55,15 +54,16 @@ public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client
 	}
 
 	protected TProtocol setupTransport() throws TTransportException {
-		TSSLTransportParameters params = new TSSLTransportParameters();
-		params.setTrustStore(
-				ThriftConfig.getTrustStorePath(),
-				ThriftConfig.getTrustStorePassword(),
-				ThriftConfig.getTrustStoreManager(),
-				ThriftConfig.getTrustStoreType()
-			);
 		Logger.debugHigh("Initializing transport");
-		transport = TSSLTransportFactory.getClientSocket(node.getIp(), node.getPort(), 0);
+//		TSSLTransportParameters params = new TSSLTransportParameters();
+//		params.setTrustStore(
+//				ThriftConfig.getTrustStorePath(),
+//				ThriftConfig.getTrustStorePassword(),
+//				ThriftConfig.getTrustStoreManager(),
+//				ThriftConfig.getTrustStoreType()
+//			);
+//		transport = TSSLTransportFactory.getClientSocket(node.getIp(), node.getPort(), 0, params);
+		transport = new TSocket(node.getIp(), node.getPort());
 		if (!transport.isOpen())
 			transport.open();
 		return new TBinaryProtocol(transport);

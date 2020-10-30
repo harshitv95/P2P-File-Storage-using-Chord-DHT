@@ -11,7 +11,12 @@ import com.hvadoda1.dht.chord.util.Logger;
 
 public class Config {
 	protected static Config instance;
-	public final static String USR_DIR = System.getProperty("user.dir");
+	public final static String USR_DIR = System.getProperty("user.dir") + File.separatorChar;
+	public final static String UPLOAD_DIR = USR_DIR + "uploads" + File.separatorChar;
+
+	public static String hostUploadsDir(int port) {
+		return UPLOAD_DIR + port + File.separatorChar;
+	}
 
 	protected ServerIDAlgorithm serverIDAlgorithm = ServerIDAlgorithm.SHA256;
 
@@ -36,6 +41,8 @@ public class Config {
 			loadProperties(args.get("properties"));
 		else {
 			InputStream stream = getClass().getResourceAsStream("/chord.properties");
+			if (stream == null)
+				return;
 			try {
 				loadProperties(stream);
 			} catch (IOException e) {
