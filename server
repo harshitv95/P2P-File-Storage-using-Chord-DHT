@@ -1,5 +1,4 @@
-LIB_PATH=${2:-"$(echo $(ls -d ./ChordDHT/lib/*) | tr ' ' ':')"}
-
+LIB_PATH=${2:-"$(echo $(ls -d $PWD/ChordDHT/lib/*) | tr ' ' ':')"}
 echo Using LIB_PATH: $LIB_PATH
 
 find -name "*.java" > sources.txt
@@ -10,7 +9,8 @@ PACKAGE_ROOT=$(echo "$dirs")
 rm -f Manifest.mf
 echo "Manifest-Version: 1.0" > Manifest.mf
 echo "Main-Class: com.hvadoda1.dht.chord.starter.ChordServiceStarter" >> Manifest.mf
-echo "Class-Path: $(echo $LIB_PATH | tr : ' ') " >> Manifest.mf
+echo "Class-Path: $(echo $LIB_PATH | sed -r 's/:/\n  /g')" >> Manifest.mf
+echo "" >> Manifest.mf
 
 RES_DIR=$(find -name "resources")
 cp $RES_DIR/* ./bin
