@@ -49,12 +49,10 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 				throw new RuntimeException("Failed to get current host's IP Address", e);
 			}
 		}), port);
-		initialize();
 	}
 
 	public AbstractRpcServer(int port) throws Exc {
 		this(null, port);
-		initialize();
 	}
 
 	@Override

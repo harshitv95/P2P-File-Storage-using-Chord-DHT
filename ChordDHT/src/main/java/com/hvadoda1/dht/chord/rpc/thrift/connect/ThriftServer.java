@@ -57,9 +57,4 @@ public class ThriftServer
 		sysExc.setMessage(message);
 		return sysExc;
 	}
-
-	@Override
-	protected void initialize() {
-	}
-
 }
