@@ -32,8 +32,10 @@ public class NodeUtils {
 	public static <Node extends IChordNode> boolean isSuccOf(Node node, String id, Node pred) {
 		if (gt(pred.getId(), node.getId()))
 			return lt(pred.getId(), id) || lteq(id, node.getId());
-		else
+		else if (lt(pred.getId(), node.getId()))
 			return lt(pred.getId(), id) && lteq(id, node.getId());
+		else
+			return lteq(id, node.getId());
 	}
 
 	public static String nodeAddress(IChordNode node) {

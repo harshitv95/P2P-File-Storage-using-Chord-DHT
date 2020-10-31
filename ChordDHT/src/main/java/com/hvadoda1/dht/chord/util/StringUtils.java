@@ -37,5 +37,9 @@ public class StringUtils {
 		public static boolean gteq(String high, String low) {
 			return high.compareTo(low) >= 0;
 		}
+
+		public static boolean eq(String high, String low) {
+			return low.equals(high);
+		}
 	}
 }
