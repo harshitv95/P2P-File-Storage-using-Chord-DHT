@@ -17,6 +17,8 @@ public class FileUtils {
 			while ((line = br.readLine()) != null)
 				sb.append(line).append(System.lineSeparator());
 		}
+		if (sb.length() >= System.lineSeparator().length())
+			sb.delete(sb.length() - System.lineSeparator().length(), sb.length());
 		return sb.toString();
 	}
 
@@ -25,10 +27,11 @@ public class FileUtils {
 		if (!file.exists())
 			file.createNewFile();
 		byte buf[] = new byte[4096];
+		int nBytes;
 		try (OutputStream fw = new FileOutputStream(file);
 				ByteArrayInputStream bis = new ByteArrayInputStream(content.getBytes());) {
-			while (bis.read(buf) > 0) {
-				fw.write(buf);
+			while ((nBytes = bis.read(buf)) > 0) {
+				fw.write(buf, 0, nBytes);
 				fw.flush();
 			}
 		}

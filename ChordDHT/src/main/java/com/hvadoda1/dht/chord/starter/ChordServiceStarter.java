@@ -38,7 +38,7 @@ public abstract class ChordServiceStarter<Controller extends IRpcServerControlle
 		String logFilename = "logs" + File.separator + "log_" + (DateTimeUtils.getLogFileNameDateString()) + ".txt";
 
 		try {
-			Logger log = new Logger(logLevel, logFilename, InetAddress.getLocalHost().getHostAddress(), false);
+			Logger log = new Logger(logLevel, logFilename, InetAddress.getLocalHost().getHostAddress(), true);
 			Logger.debugHigh("Command Line Args", argMap);
 			ChordStarterFactory.factory(ChordImpl.Thrift, argMap).start(() -> {
 				// Equivalent to finally, but for threads

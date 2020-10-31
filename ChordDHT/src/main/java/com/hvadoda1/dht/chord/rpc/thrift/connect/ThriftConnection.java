@@ -1,6 +1,6 @@
 package com.hvadoda1.dht.chord.rpc.thrift.connect;
 
-import static com.hvadoda1.dht.chord.util.CommonUtils.nodeAddress;
+import static com.hvadoda1.dht.chord.util.NodeUtils.nodeAddress;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -14,6 +14,7 @@ import com.hvadoda1.dht.chord.rpc.thrift.generated.FileStore;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.FileStore.Client;
 import com.hvadoda1.dht.chord.rpc.thrift.generated.NodeID;
 import com.hvadoda1.dht.chord.util.Logger;
+import com.hvadoda1.dht.chord.util.NodeUtils;
 
 public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client> {
 
@@ -54,7 +55,7 @@ public class ThriftConnection implements IRpcConnection<NodeID, FileStore.Client
 	}
 
 	protected TProtocol setupTransport() throws TTransportException {
-		Logger.debugHigh("Initializing transport");
+		Logger.debugHigh("Initializing transport -> " + NodeUtils.nodeAddress(node));
 //		TSSLTransportParameters params = new TSSLTransportParameters();
 //		params.setTrustStore(
 //				ThriftConfig.getTrustStorePath(),
