@@ -196,6 +196,7 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 	}
 
 	protected Node getNodeSucc(Node node) throws Exc {
+		Logger.debugHigh("Finding successor of [" + nodeAddress(node) + "]");
 		try (Conn conn = getConnection(node);) {
 			Client client = conn.connect();
 			return client.getNodeSucc();
