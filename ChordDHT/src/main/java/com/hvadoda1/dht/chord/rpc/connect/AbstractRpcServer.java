@@ -35,6 +35,7 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 		this.node = node;
 		this.uploadsDir = new java.io.File(Config.hostUploadsDir(node.getPort()));
 		initialize();
+		Logger.setHost(nodeAddress(node));
 		Logger.info("Chord server running on: [" + nodeAddress(node) + "]");
 		Logger.debugLow("Server ID: [" + node.getId() + "]");
 	}
@@ -162,12 +163,21 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 		Node target = null, targetSucc = fingerTable.get(fingerTable.size() - 1);
 
 		for (int i = fingerTable.size() - 2; i >= 0; i--, targetSucc = target, target = null)
-			if (isPredOf(target = fingerTable.get(i), key, targetSucc))
+			if (isPredOf(target = fingerTable.get(i), key, targetSucc)) {
+				Logger.debugLow(
+						"isPredOf(" + nodeAddress(target) + ", " + key + ", " + nodeAddress(targetSucc) + ") -> true");
 				break;
+			} else {
+				Logger.debugLow(
+						"isPredOf(" + nodeAddress(target) + ", " + key + ", " + nodeAddress(targetSucc) + ") -> false");
+			}
 
-		if (target == null)
+		if (target == null) {
 			target = fingerTable.get(fingerTable.size() - 2);
+			Logger.debugLow("No Target found, setting to default: [" + nodeAddress(target) + "]");
+		}
 		try (Conn conn = getConnection(target);) {
+			Logger.debugLow("Target found : [" + nodeAddress(target) + "]");
 			Client client = conn.connect();
 			return client.findPred(key);
 		} catch (IOException e) {

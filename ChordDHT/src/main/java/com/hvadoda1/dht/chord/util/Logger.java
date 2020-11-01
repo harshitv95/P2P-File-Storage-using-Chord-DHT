@@ -28,7 +28,7 @@ public class Logger implements AutoCloseable {
 	protected final FileWriter fw;
 	protected final String basePackageName;
 	protected final boolean detailsOnConsole;
-	protected final String hostAddress;
+	protected String hostAddress;
 
 	/**
 	 * Initializes the logger with the provided level and log file. Call this
@@ -166,6 +166,10 @@ public class Logger implements AutoCloseable {
 		Logger.getInstance().log(Level.ERROR, msg, args);
 		if (t != null)
 			t.printStackTrace();
+	}
+
+	public static void setHost(String host) {
+		getInstance().hostAddress = host;
 	}
 
 	protected String getCaller() {
