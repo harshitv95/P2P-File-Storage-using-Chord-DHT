@@ -44,6 +44,7 @@ public abstract class AbstractRpcServer<File extends IFile, FileMeta extends IFi
 		this.node = createNode(Objects.requireNonNullElseGet(id, () -> CommonUtils.serverID(host, port)), host, port);
 		this.uploadsDir = new java.io.File(Config.hostUploadsDir(node.getPort()));
 		initialize();
+		Logger.setHost(nodeAddress(node));
 		Logger.info("Chord server running on: [" + nodeAddress(node) + "]");
 		Logger.debugLow("Server ID: [" + node.getId() + "]");
 	}
