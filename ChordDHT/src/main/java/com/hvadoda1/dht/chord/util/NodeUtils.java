@@ -35,7 +35,7 @@ public class NodeUtils {
 		else if (lt(pred.getId(), node.getId()))
 			return lt(pred.getId(), id) && lteq(id, node.getId());
 		else
-			return lteq(id, node.getId());
+			return lt(id, node.getId());
 	}
 
 	public static String nodeAddress(IChordNode node) {
