@@ -15,11 +15,18 @@ public class NodeUtils {
 	 * @return
 	 */
 	public static <Node extends IChordNode> boolean isPredOf(Node node, String id, Node succ) {
-		return isSuccOf(succ, id, node);
+//		return isSuccOf(succ, id, node);
 //		if (lt(succ.getId(), node.getId())) // Overflow
 //			return lt(node.getId(), id) || lteq(id, succ.getId());
 //		else
 //			return lt(node.getId(), id) && lteq(id, succ.getId());
+		if (gt(node.getId(), succ.getId()))
+			return lt(node.getId(), id) || lteq(id, succ.getId());
+		else if (lt(node.getId(), succ.getId()))
+			return lt(node.getId(), id) && lteq(id, succ.getId());
+		else
+			return gt(id, node.getId());
+	
 	}
 
 	/**
@@ -35,7 +42,7 @@ public class NodeUtils {
 		else if (lt(pred.getId(), node.getId()))
 			return lt(pred.getId(), id) && lteq(id, node.getId());
 		else
-			return lt(id, node.getId());
+			return lteq(id, node.getId());
 	}
 
 	public static String nodeAddress(IChordNode node) {
